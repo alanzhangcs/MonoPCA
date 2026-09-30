@@ -2,9 +2,9 @@
 
 # Rethinking Geometric Depth in Monocular 3D Object Detection: A Projection-Consistent Reformulation
 
-[Zhihao Zhang](https://alanzhangcs.github.io/)<sup>1</sup>, [Abhinav Kumar](https://sites.google.com/view/abhinavkumar)<sup>2</sup>, [Huaizhi Qu](https://qhz991029.github.io/)<sup>3</sup>, [Tianlong Chen](https://tianlong-chen.github.io/)<sup>3</sup>, [Xiaoming Liu](https://cs.unc.edu/person/xiaoming-liu/)<sup>1,3</sup>
+[Zhihao Zhang](https://alanzhangcs.github.io/)<sup>1</sup>, [Abhinav Kumar](https://sites.google.com/view/abhinavkumar)<sup>1</sup>, [Huaizhi Qu](https://qhz991029.github.io/)<sup>2</sup>, [Tianlong Chen](https://tianlong-chen.github.io/)<sup>2</sup>, [Xiaoming Liu](https://cs.unc.edu/person/xiaoming-liu/)<sup>1,2</sup>
 
-<sup>1</sup>Michigan State University &nbsp; <sup>2</sup>Adobe &nbsp; <sup>3</sup>University of North Carolina at Chapel Hill
+<sup>1</sup>Michigan State University &nbsp; <sup>2</sup>University of North Carolina at Chapel Hill
 
 **NeurIPS 2026**
 
