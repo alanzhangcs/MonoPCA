@@ -1,0 +1,146 @@
+random_seed: 444
+
+dataset:
+  type: &dataset_type "kitti_nusc_waymo_multi_focal_multi_class"
+  dataset_list: ["KITTI", "NUSC", "Waymo"]
+  root_dir_list: ["data/KITTIDataset", "data/NUSCDataset", "data/WaymoDataset"]
+  split_path: "splits"
+  train_split: "train_kitti_nusc_waymo"
+  test_split: "val_kitti"
+  test_dataset: "KITTI"
+  batch_size: 16
+  use_3d_center: True
+  class_merging: False
+  use_dontcare: False
+  bbox2d_type: "anno" # 'proj' or 'anno'
+  meanshape: False # use predefined anchor or not
+  writelist: ['Car', 'Pedestrian', 'Trailer', 'Bus', 'Motorcycle', 'Cyclist', 'Barrier', 'Truck', 'Van', 'Traffic_cone', 'Bicycle']
+  clip_2d: False
+  resolution: [1280, 512]
+  maintain_image_ratio: True
+  target_focal_list: [1300, 748.8391, 900, 1100]
+  test_focal: 748.8391
+  threshold: 100
+  use_cache: False
+
+  aug_pd: True
+  aug_crop: True
+
+  random_flip: 0.5
+  random_crop: 0.5
+  random_mixup3d: 0.5
+  scale: 0.05
+  shift: 0.05
+  depth_scale: "normal"
+
+model_name: "monopca_kitti_nusc_waymo"
+model:
+  num_classes: 11
+  return_intermediate_dec: True
+  device: "cuda"
+  type: "monopca"
+  num_channels: [512, 1024, 2048]
+  focal_embedding_path: "assets/focal_list_feat.npy"
+  target_focal_list: [1300, 748.8391, 900, 1100]
+
+  # MoB (Mixture of Backbone): EVA-02 + ResNet
+  vfm_backbone:
+    img_size: 1536
+    real_img_size: [512, 1280]
+    patch_size: 16
+    in_chans: 3
+    embed_dim: 1024
+    depth: 24
+    num_heads: 16
+    mlp_ratio: 2.6666666666666665
+    qkv_bias: true
+    drop_path_rate: 0.3
+    use_abs_pos: true
+    window_size: 16
+    window_block_indexes:
+      [0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22]
+    residual_block_indexes: []
+    use_act_checkpoint: true
+
+    # args for simple FPN
+    fpn_out_channels: 256
+    fpn_scale_factors: [4.0, 2.0, 1.0, 0.5]
+    fpn_top_block: true
+    fpn_norm: "LN"
+    fpn_square_pad: 0
+    pretrained: "pretrained/eva02_L_coco_seg_sys_o365.pth"
+    frozen_blocks: 3
+  num_feature_levels: 4
+
+  resnet_backbone:
+    backbone_name: "resnet50"
+    freeze_norm: True
+
+  # Depth predictor
+  num_depth_bins: 80
+  depth_min: 1e-3
+  depth_max: 100.0
+
+  # Transformer (the depth embedding is fed to the encoder as an extra level)
+  enc_layers: 3
+  dec_layers: 3
+  hidden_dim: 256
+  dim_feedforward: 256
+  dropout: 0.1
+  nheads: 8
+  num_queries: 50
+  group_num: 11
+  enc_n_points: 4
+  dec_n_points: 4
+  # Loss
+  aux_loss: True
+
+  # Loss coefficients
+  cls_loss_coef: 2
+  focal_alpha: 0.25
+
+  bbox_loss_coef: 5
+  giou_loss_coef: 2
+  3dcenter_loss_coef: 10
+  dim_loss_coef: 1
+  angle_loss_coef: 1
+  depth_loss_coef: 1
+  depth_map_loss_coef: 1
+  region_loss_coef: 1
+
+  # Matcher
+  set_cost_class: 2
+  set_cost_bbox: 5
+  set_cost_giou: 2
+  set_cost_3dcenter: 10
+
+optimizer:
+  type: "mob_adamw"
+  lr: 0.0002
+  backbone_lr: 0.00002
+  weight_decay: 0.01
+  backbone_prefixes: ["mob.vfm_backbone"]
+
+lr_scheduler:
+  type: "step" # 'step' or 'cos'
+  warmup: False # 5 epoches, cosine warmup, init_lir=0.00001 in default
+  decay_rate: 0.5
+  decay_list: [25, 45, 65, 85]
+
+trainer:
+  max_epoch: 100
+  gpu_ids: "1"
+  save_frequency: 1 # checkpoint save interval (in epoch)
+  #resume_model: True
+  #pretrain_model: path/to/ckpt
+  save_path: "outputs/monopca_kitti_nusc_waymo/"
+  save_all: False # False for only savng the best and latest ckpts
+  eval_epoch: 30
+
+tester:
+  type: *dataset_type
+  mode: single # 'single' or 'all'; 'all' to evaluate all ckpts in the folder
+  checkpoint: 195 # the start ckpt epoch for 'all'
+  threshold: 0.2 # confidence filter
+  topk: 50
+  # checkpoint_path: path/to/checkpoint_best.pth  # used by evaluation-only mode (-e)

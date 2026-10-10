@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+
+# data / weights / outputs
+/data
+/pretrained
+/outputs
+/logs
+*.pth
+
+.vscode/
+.idea/
