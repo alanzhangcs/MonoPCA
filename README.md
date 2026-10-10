@@ -150,6 +150,10 @@ lib/helpers/             trainer, tester, optimizer, scheduler, decoding
 
 This project builds on [MonoDETR](https://github.com/ZrrSkywalker/MonoDETR), [MonoDGP](https://github.com/PuFanqi23/MonoDGP), [MonoCoP](https://github.com/alanzhangcs/MonoCoP), [MonoIA](https://github.com/alanzhangcs/MonoIA), [DEVIANT](https://github.com/abhi1kumar/DEVIANT), [DETR](https://github.com/facebookresearch/detr), [Deformable DETR](https://github.com/fundamentalvision/Deformable-DETR), [EVA-02](https://github.com/baaivision/EVA), [detectron2](https://github.com/facebookresearch/detectron2), [RT-DETR](https://github.com/lyuwenyu/RT-DETR) and [CaDDN](https://github.com/TRAILab/CaDDN). We thank the authors for releasing their code.
 
+## License
+
+This project is released under the [MIT License](LICENSE). Some files are derived from third-party projects and keep their original licenses in their headers (e.g. the deformable attention op from Deformable DETR, under Apache-2.0).
+
 ## Citation
 
 ```bibtex
