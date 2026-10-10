@@ -93,7 +93,8 @@ MonoPCA
 │       └── validation   # calib/, image/, label/
 └── splits
     ├── train_kitti_nusc_waymo.txt
-    └── val_kitti.txt
+    ├── val_kitti.txt
+    └── val_nusc.txt
 ```
 
 The merged split files in `splits/` are provided. Each line is `<DATASET> <sample_id>`, e.g. `KITTI 000003`. To build your own split from per-dataset split files (e.g. DEVIANT's `ImageSets/train.txt`), run:
@@ -129,11 +130,49 @@ Set `tester.checkpoint_path` in the config to the checkpoint you want to evaluat
 bash scripts/test.sh 0 29501 configs/monopca_kitti_nusc_waymo.yaml
 ```
 
+## Omni3D Evaluation
+
+We provide tools to evaluate KITTI-format predictions with the official [Omni3D](https://github.com/facebookresearch/omni3d) evaluator on **KITTI_test** and **nuScenes_test** (Omni3D-OUT), without running Cube R-CNN.
+
+1. **Set up Omni3D.** Clone [facebookresearch/omni3d](https://github.com/facebookresearch/omni3d), install its environment and download the Omni3D annotation jsons to `<omni3d_root>/datasets/Omni3D/` following its [DATA.md](https://github.com/facebookresearch/omni3d/blob/main/DATA.md).
+
+2. **Predict on the KITTI val and nuScenes val splits** in KITTI format with the evaluation mode (see [Evaluation](#evaluation)). For nuScenes, set `test_split: "val_nusc"` and `test_dataset: "NUSC"` under `dataset` in the config. Predictions are written to `outputs/<model_name>/<run>/outputs/data/`, one `<sample_id>.txt` per image with one object per line: `type trunc occ alpha x1 y1 x2 y2 h w l x y z ry score`.
+
+3. **Convert the predictions to the Omni3D format:**
+
+   ```bash
+   python tools/omni3d/convert_to_omni3d.py --dataset kitti \
+       --pred_dir /path/to/kitti_predictions \
+       --data_root data/KITTIDataset/training \
+       --omni3d_json <omni3d_root>/datasets/Omni3D/KITTI_test.json \
+       --output kitti_omni3d.json
+
+   python tools/omni3d/convert_to_omni3d.py --dataset nuscenes \
+       --pred_dir /path/to/nuscenes_predictions \
+       --data_root data/NUSCDataset/validation \
+       --omni3d_json <omni3d_root>/datasets/Omni3D/nuScenes_test.json \
+       --output nuscenes_omni3d.json
+   ```
+
+   The KITTI-format nuScenes samples exported by DEVIANT are mapped back to the original nuScenes images with `tools/omni3d/data/seqid2path_nuScenes.json`.
+
+4. **Evaluate** (in the Omni3D environment):
+
+   ```bash
+   python tools/omni3d/evaluate_omni3d.py --omni3d_root <omni3d_root> \
+       --kitti kitti_omni3d.json \
+       --nuscenes nuscenes_omni3d.json \
+       --output_dir outputs/omni3d_eval
+   ```
+
+   This reports AP<sub>2D</sub> and AP<sub>3D</sub> (averaged over IoU<sub>3D</sub> 0.05–0.50) for each dataset and for their union (Omni3D-OUT).
+
 ## Project Structure
 
 ```
 configs/                 training configs
 tools/train_val.py       training / evaluation entry point
+tools/omni3d/            KITTI-format -> Omni3D conversion and Omni3D evaluation
 lib/models/monopca/
 ├── monopca.py           MonoPCA model and losses
 ├── mob.py               MoB: Mixture of Backbone (ResNet + EVA-02)

@@ -1,0 +1,8 @@
+# Omni3D-OUT evaluation settings, merged on top of configs/Base.yaml from the Omni3D repo.
+DATASETS:
+  TRAIN: ()
+  TEST: ('KITTI_test', 'nuScenes_test')
+  CATEGORY_NAMES: ('cyclist', 'pedestrian', 'trailer', 'bus', 'motorcycle', 'car', 'barrier', 'truck', 'van', 'traffic cone', 'bicycle')
+MODEL:
+  ROI_HEADS:
+    NUM_CLASSES: 11
