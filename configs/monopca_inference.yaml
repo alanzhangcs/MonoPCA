@@ -1,0 +1,90 @@
+# Inference-only config of the released MonoPCA model (MoB backbone, trained on KITTI + nuScenes + Waymo).
+# Used by tools/inference.py; the weights are downloaded from https://huggingface.co/zhihao406/MonoPCA
+
+inference:
+  resolution: [1280, 512]  # W, H of the network input; images are resized to it and zero-padded
+  test_focal: 748.8391     # virtual focal length the image is resampled to
+  class_names: ['Car', 'Pedestrian', 'Trailer', 'Bus', 'Motorcycle', 'Cyclist', 'Barrier', 'Truck', 'Van', 'Traffic_cone', 'Bicycle']
+  threshold: 0.2           # confidence filter
+  topk: 50
+
+model:
+  num_classes: 11
+  return_intermediate_dec: True
+  device: "cuda"
+  type: "monopca"
+  num_channels: [512, 1024, 2048]
+  focal_embedding_path: "assets/focal_list_feat.npy"
+  target_focal_list: [1300, 748.8391, 900, 1100]
+
+  # MoB (Mixture of Backbone): EVA-02 + ResNet
+  vfm_backbone:
+    img_size: 1536
+    real_img_size: [512, 1280]
+    patch_size: 16
+    in_chans: 3
+    embed_dim: 1024
+    depth: 24
+    num_heads: 16
+    mlp_ratio: 2.6666666666666665
+    qkv_bias: true
+    drop_path_rate: 0.3
+    use_abs_pos: true
+    window_size: 16
+    window_block_indexes:
+      [0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22]
+    residual_block_indexes: []
+    use_act_checkpoint: false
+
+    # args for simple FPN
+    fpn_out_channels: 256
+    fpn_scale_factors: [4.0, 2.0, 1.0, 0.5]
+    fpn_top_block: true
+    fpn_norm: "LN"
+    fpn_square_pad: 0
+    pretrained: null  # all weights come from the MonoPCA checkpoint
+    frozen_blocks: 3
+  num_feature_levels: 4
+
+  resnet_backbone:
+    backbone_name: "resnet50"
+    freeze_norm: True
+    pretrained: False  # all weights come from the MonoPCA checkpoint
+
+  # Depth predictor
+  num_depth_bins: 80
+  depth_min: 1e-3
+  depth_max: 100.0
+
+  # Transformer (the depth embedding is fed to the encoder as an extra level)
+  enc_layers: 3
+  dec_layers: 3
+  hidden_dim: 256
+  dim_feedforward: 256
+  dropout: 0.1
+  nheads: 8
+  num_queries: 50
+  group_num: 11
+  enc_n_points: 4
+  dec_n_points: 4
+  # Loss
+  aux_loss: True
+
+  # Loss coefficients
+  cls_loss_coef: 2
+  focal_alpha: 0.25
+
+  bbox_loss_coef: 5
+  giou_loss_coef: 2
+  3dcenter_loss_coef: 10
+  dim_loss_coef: 1
+  angle_loss_coef: 1
+  depth_loss_coef: 1
+  depth_map_loss_coef: 1
+  region_loss_coef: 1
+
+  # Matcher
+  set_cost_class: 2
+  set_cost_bbox: 5
+  set_cost_giou: 2
+  set_cost_3dcenter: 10

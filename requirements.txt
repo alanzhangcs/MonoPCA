@@ -11,3 +11,5 @@ easydict
 fvcore
 einops
 pyyaml
+huggingface_hub
+safetensors

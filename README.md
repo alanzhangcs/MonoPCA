@@ -113,6 +113,20 @@ python tools/create_split.py \
 - **ResNet-50:** downloaded automatically on first run.
 - **Focal-length embeddings:** included at `assets/focal_list_feat.npy`.
 
+## Pretrained Model
+
+The pretrained MonoPCA model (MoB backbone, trained on KITTI + nuScenes + Waymo) is on Hugging Face: [zhihao406/MonoPCA](https://huggingface.co/zhihao406/MonoPCA). `tools/inference.py` downloads it automatically and writes KITTI-format predictions (`type trunc occ alpha x1 y1 x2 y2 h w l x y z ry score`):
+
+```bash
+# a single image with its KITTI calib file (P2 is used)
+python tools/inference.py --image path/to/000001.png --calib path/to/000001.txt --output outputs/inference
+
+# a folder of images with calib files of the same name
+python tools/inference.py --image path/to/image_2 --calib path/to/calib --output outputs/inference
+```
+
+The inference-only config is `configs/monopca_inference.yaml`. Pass `--checkpoint` to use a local `.safetensors` or `.pth` file instead.
+
 ## Training
 
 ```bash
@@ -172,6 +186,7 @@ We provide tools to evaluate KITTI-format predictions with the official [Omni3D]
 ```
 configs/                 training configs
 tools/train_val.py       training / evaluation entry point
+tools/inference.py       inference with the pretrained model
 tools/omni3d/            KITTI-format -> Omni3D conversion and Omni3D evaluation
 lib/models/monopca/
 ├── monopca.py           MonoPCA model and losses

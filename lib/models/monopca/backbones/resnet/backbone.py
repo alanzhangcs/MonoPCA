@@ -365,7 +365,7 @@ class Backbone(nn.Module):
         return outs
 
 
-def build_resnet_backbone(backbone_name="resnet50", freeze_norm=True):
+def build_resnet_backbone(backbone_name="resnet50", freeze_norm=True, pretrained=True):
     assert backbone_name in ("resnet18", "resnet34", "resnet50", "resnet101")
     ResNet_map = {
         "resnet18": 18,
@@ -375,6 +375,6 @@ def build_resnet_backbone(backbone_name="resnet50", freeze_norm=True):
     }
 
     backbone = Backbone(
-        depth=ResNet_map[backbone_name], freeze_norm=freeze_norm
+        depth=ResNet_map[backbone_name], freeze_norm=freeze_norm, pretrained=pretrained
     )
     return backbone
