@@ -8,6 +8,7 @@
 
 **NeurIPS 2026**
 
+[![arXiv](https://img.shields.io/badge/arXiv-2611.11607-B31B1B)](https://arxiv.org/abs/2611.11607)
 [![Project Page](https://img.shields.io/badge/Project-Page-4B9CD3)](https://alanzhangcs.github.io/MonoPCA-Page/)
 [![Hugging Face Model](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-FFD21E)](https://huggingface.co/zhihao406/MonoPCA)
 ![Venue](https://img.shields.io/badge/NeurIPS-2026-13294B)
